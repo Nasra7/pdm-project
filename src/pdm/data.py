@@ -13,13 +13,23 @@ import pandas as pd
 from . import config
 
 
-def load_raw(path=None) -> pd.DataFrame:
-    """Load a raw C-MAPSS FD001 file into a labeled DataFrame.
+def load_raw(path=None, subset=None) -> pd.DataFrame:
+    """Load a raw C-MAPSS training file into a DataFrame.
 
     The files are whitespace-separated with no header and trailing spaces that
     create phantom columns; `sep=r"\\s+"` with explicit names handles this.
+
+    Args:
+        path: explicit path to a train_*.txt file (overrides `subset`).
+        subset: e.g. "FD001" or "FD003"; resolved against the data directory.
+                Lets the same code load different C-MAPSS subsets, which is
+                what enables the single-mode vs two-mode comparison.
     """
-    path = path or config.RAW_TRAIN_FILE
+    if path is None:
+        if subset is not None:
+            path = config.DATA_DIR / f"train_{subset}.txt"
+        else:
+            path = config.RAW_TRAIN_FILE
     df = pd.read_csv(path, sep=r"\s+", header=None, names=config.COL_NAMES)
     return df
 

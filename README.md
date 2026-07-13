@@ -52,6 +52,32 @@ The project produces two kinds of SHAP explanation:
   was flagged. This is what lets a maintenance engineer act:
   *"Engine 34 is flagged because sensors 11 and 14 show late-stage degradation."*
 
+### Failure-signature discovery (going beyond standard SHAP)
+
+The standout analysis (`notebooks/02_failure_signatures.ipynb`,
+`src/pdm/signatures.py`): instead of stopping at prediction, I ask *how* engines
+fail. Each failing engine's SHAP vector is a "signature" of which sensors drove
+its failure. Clustering those signatures probes whether the model's reasoning
+contains distinct **failure modes** — discovered purely from explanation
+structure, with no failure-mode labels.
+
+**Validation against known ground truth.** C-MAPSS subsets have *known*
+failure-mode counts — FD001 has one, FD003 has two. Running the same method on
+both tests whether it recovers that structure. The honest result: silhouette
+scores were "weak" for both subsets (exact cluster counts are unreliable at this
+sample size), **but the silhouette profiles discriminated correctly in
+direction** — FD001 showed a monotonic decline from k=2 (single-mode
+signature), while FD003 showed an interior peak at k=3 with a higher best score
+(multi-mode signature). Forcing k=2 on FD003 produced two physically distinct
+signatures (sensor_11/sensor_4 vs sensor_12/sensor_9/sensor_14).
+
+**Conclusion:** the method distinguishes single-mode from multi-mode datasets by
+their explanation structure, though it cannot pin exact mode counts at this
+scale — a bounded finding validated against ground truth rather than tuned for a
+clean number. The `choose_k` logic reports an honest verdict
+(`strong` / `weak` / `no_structure`) rather than always claiming clusters exist,
+since silhouette is noisy at small N.
+
 ---
 
 ## Project structure
@@ -64,10 +90,14 @@ pdm-project/
 │   ├── model.py        # training, imbalance correction, persistence
 │   ├── evaluate.py     # imbalance-aware metrics
 │   ├── explain.py      # SHAP global + local explanations
+│   ├── signatures.py   # failure-signature discovery (clustering SHAP vectors)
 │   └── pipeline.py     # end-to-end entry point
 ├── tests/
-│   └── test_data.py    # leakage & labeling correctness tests
-├── notebooks/          # exploratory analysis
+│   ├── test_data.py        # leakage & labeling correctness tests
+│   └── test_signatures.py  # signature-building & honest-k tests
+├── notebooks/
+│   ├── 01_exploration_and_shap.ipynb   # EDA, model, global+local SHAP
+│   └── 02_failure_signatures.ipynb     # failure-mode discovery + validation
 ├── requirements.txt
 └── pyproject.toml
 ```
