@@ -125,6 +125,19 @@ NASA C-MAPSS Turbofan Engine Degradation Simulation (subset FD001): 100 engines
 run from healthy operation to failure, with 21 sensor readings per cycle. The
 prediction target is a binary label: *will this engine fail within 30 cycles?*
 
+## Getting the data
+
+This repo does not include the raw data (it belongs to NASA and is excluded via
+`.gitignore`). To run the pipeline, download the C-MAPSS Turbofan Engine
+Degradation dataset and place the required files in `data/`:
+
+- `data/train_FD001.txt`
+- `data/train_FD003.txt`
+
+The dataset is available from NASA's Prognostics Data Repository (search "NASA
+C-MAPSS Turbofan Engine Degradation") or its Kaggle mirror (search "NASA
+Turbofan Engine Degradation Simulation").
+
 ## Possible extensions
 
 - Reframe as regression (predict exact RUL) or survival analysis (time-to-event)
