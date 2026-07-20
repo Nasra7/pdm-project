@@ -15,10 +15,14 @@ dependencies = [
     "shap>=0.44",
     "matplotlib>=3.7",
     "joblib>=1.3",
+    "scipy>=1.10",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest>=7.4"]
+# Evidently is optional: the hand-built PSI/KS core needs only scipy; the
+# evidently_report() wrapper needs this. Kept separate so CI stays lean/fast.
+evidently = ["evidently>=0.7"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
